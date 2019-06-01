@@ -3,26 +3,95 @@
 
     <div class="sidebar has-background-white">
       <h1 class="title has-text-primary">
-        Lists
+        Listas
       </h1>
-
+      <div class="filter-sort">
+        <div class="field">
+          <p class="control has-icons-left">
+            <input #pwInput class="input has-background-light" type="text" placeholder="Buscar"
+              [(ngModel)]="searchText">
+            <span class="icon is-small is-left">
+              <i class="fas fa-search"></i>
+            </span>
+          </p>
+        </div>
+        <div class="dropdown is-hoverable is-right">
+          <div class="dropdown-trigger">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4">
+              <span class="icon is-small">
+                <i class="fas fa-sort" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+          <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+            <div class="dropdown-content">
+              <a (click)="onListSortByCreationOldest()" class="dropdown-item">
+                Creación más antigua
+              </a>
+              <a (click)="onListSortByCreationNewest()" class="dropdown-item">
+                Creación más reciente
+              </a>
+              <a (click)="onListSortByAlphaAB()" class="dropdown-item">
+                Alfabético
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="list-menu">
-        <a class="list-menu-item" *ngFor="let list of lists" [routerLink]="['/lists', list._id]" routerLinkActive="is-active">
+        <a class="list-menu-item" *ngFor="let list of lists | listFilter:searchText" [routerLink]="['/lists', list._id]"
+          routerLinkActive="is-active">
           <p>{{ list.title }}</p>
+          <br>
+          <span>Creada: {{list.date | date:"yyyy-MM-dd"}}</span>
         </a>
 
       </div>
 
-      <button class="button is-primary has-text-white" routerLink="/new-list">+ New List</button>
-
+      <button class="button is-primary has-text-white" routerLink="/new-list">+ Nueva lista</button>
+      <button class="button is-primary has-text-white" style="margin-top: 15px;" (click)="onLogout()"
+        routerLink="/login">Salir</button>
     </div>
 
     <div class="task-list-container has-background-light">
       <div *ngIf="tasks">
         <div class="top-bar">
           <h1 class="title has-text-primary">
-            Tasks
+            Tareas
           </h1>
+          <div class="filter-sort">
+            <div class="field">
+              <p class="control has-icons-left">
+                <input #pwInput class="input has-background-light" type="text" placeholder="Buscar"
+                  [(ngModel)]="searchTextTarea">
+                <span class="icon is-small is-left">
+                  <i class="fas fa-search"></i>
+                </span>
+              </p>
+            </div>
+            <div class="dropdown is-hoverable is-right">
+              <div class="dropdown-trigger">
+                <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4">
+                  <span class="icon is-small">
+                    <i class="fas fa-sort" aria-hidden="true"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+                <div class="dropdown-content">
+                  <a (click)="onTaskSortByCreationOldest()" class="dropdown-item">
+                    Creación más antigua
+                  </a>
+                  <a (click)="onTaskSortByCreationNewest()" class="dropdown-item">
+                    Creación más reciente
+                  </a>
+                  <a (click)="onTaskSortByAlphaAB()" class="dropdown-item">
+                    Alfabético
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="dropdown is-hoverable is-right">
             <div class="dropdown-trigger">
               <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4">
@@ -34,10 +103,10 @@
             <div class="dropdown-menu" id="dropdown-menu4" role="menu">
               <div class="dropdown-content">
                 <a [routerLink]="['/edit-list', selectedListId]" class="dropdown-item">
-                  Edit
+                  Editar
                 </a>
                 <a (click)="onDeleteListClick()" class="dropdown-item has-text-danger">
-                  Delete
+                  Borrar
                 </a>
               </div>
             </div>
@@ -45,9 +114,11 @@
         </div>
 
         <!-- Task Elements -->
-        <div class="task" *ngFor="let task of tasks" (click)="onTaskClick(task)" [ngClass]="{ 'completed': task.completed }">
+        <div class="task" *ngFor="let task of tasks | taskFilter:searchTextTarea" (click)="onTaskClick(task)"
+          [ngClass]="{ 'completed': task.completed }">
           <div class="task-text">
             <p>{{ task.title }}</p>
+            <span>Creada: {{task.date | date:"yyyy-MM-dd"}}</span>
           </div>
           <div class="task-buttons">
 
@@ -66,16 +137,15 @@
           </div>
         </div>
 
-        <h3 class="empty-state-text" *ngIf="tasks.length === 0">There are no tasks here! Click the add button to create
-          a new task.</h3>
-
+        <h3 class="empty-state-text" *ngIf="tasks.length === 0">No hay tareas en esta lista. Crea una con el boton de
+          agregar.</h3>
         <button routerLink="./new-task" class="circle-add-button button is-primary">
           <img src="../../../assets/plus-icon.svg" class="has-text-white">
         </button>
       </div>
 
       <div *ngIf="!tasks">
-        <h3 class="empty-state-text">Please select a list from the sidebar</h3>
+        <h3 class="empty-state-text">Selecciona una lista del menú de al lado, si no tienes crea una.</h3>
       </div>
 
     </div>

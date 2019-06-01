@@ -3,6 +3,8 @@ import { TaskService } from 'src/app/task.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Task } from 'src/app/models/task.model';
 import { List } from 'src/app/models/list.model';
+import { AuthService } from 'src/app/auth.service';
+import { WebRequestService } from 'src/app/web-request.service';
 
 @Component({
   selector: 'app-task-view',
@@ -11,12 +13,14 @@ import { List } from 'src/app/models/list.model';
 })
 export class TaskViewComponent implements OnInit {
 
+  searchText: string;
+  searchTextTarea: string;
   lists: List[];
   tasks: Task[];
 
   selectedListId: string;
 
-  constructor(private taskService: TaskService, private route: ActivatedRoute, private router: Router) { }
+  constructor(private taskService: TaskService, private route: ActivatedRoute, private router: Router, private __authService: AuthService, private __webService: WebRequestService) { }
 
   ngOnInit() {
     this.route.params.subscribe(
@@ -35,7 +39,7 @@ export class TaskViewComponent implements OnInit {
     this.taskService.getLists().subscribe((lists: List[]) => {
       this.lists = lists;
     })
-    
+
   }
 
   onTaskClick(task: Task) {
@@ -54,11 +58,80 @@ export class TaskViewComponent implements OnInit {
     })
   }
 
+  onLogout() {
+    this.__authService.logout().subscribe((res: any) => {
+      console.log(res)
+    })
+  }
+
   onDeleteTaskClick(id: string) {
     this.taskService.deleteTask(this.selectedListId, id).subscribe((res: any) => {
       this.tasks = this.tasks.filter(val => val._id !== id);
       console.log(res);
     })
+  }
+
+  onListSortByCreationOldest() {
+    this.taskService.getSortedByDateListOldest().subscribe((lists: List[]) => {
+      this.lists = lists
+    })
+  }
+
+  onListSortByCreationNewest() {
+    this.taskService.getSortedByDateListNewest().subscribe((lists: List[]) => {
+      this.lists = lists
+    })
+  }
+
+  onListSortByAlphaAB() {
+    this.taskService.getSortedByDateListAlpha1().subscribe((lists: List[]) => {
+      this.lists = lists
+    })
+  }
+
+  onTaskSortByCreationOldest() {
+    this.route.params.subscribe(
+      (params: Params) => {
+        if (params.listId) {
+          this.selectedListId = params.listId;
+          this.taskService.getSortedByDateTaskOldest(params.listId).subscribe((tasks: Task[]) => {
+            this.tasks = tasks;
+          })
+        } else {
+          this.tasks = undefined;
+        }
+      }
+    )
+  }
+
+  onTaskSortByCreationNewest() {
+    this.route.params.subscribe(
+      (params: Params) => {
+        if (params.listId) {
+          this.selectedListId = params.listId;
+          this.taskService.getSortedByDateTaskNewest(params.listId).subscribe((tasks: Task[]) => {
+            this.tasks = tasks;
+          })
+        } else {
+          this.tasks = undefined;
+        }
+      }
+    )
+  }
+
+  onTaskSortByAlphaAB() {
+    this.route.params.subscribe(
+      (params: Params) => {
+        if (params.listId) {
+          this.selectedListId = params.listId;
+          this.taskService.getSortedByDateTaskAlpha1(params.listId).subscribe((tasks: Task[]) => {
+            this.tasks = tasks;
+          })
+        } else {
+          this.tasks = undefined;
+        }
+      }
+    )
   }
 
 }

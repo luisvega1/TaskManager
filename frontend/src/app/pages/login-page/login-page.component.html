@@ -1,11 +1,12 @@
+<notifier-container></notifier-container>
 <div class="centered-content">
   <div class="white-box">
 
     <h1 class="title has-text-primary">Login</h1>
-    
+
     <div class="field">
       <p class="control has-icons-left has-icons-right">
-        <input #emailInput class="input has-background-light" type="email" placeholder="Email">
+        <input #emailInput class="input has-background-light" type="email" placeholder="Correo">
         <span class="icon is-small is-left">
           <i class="fas fa-envelope"></i>
         </span>
@@ -13,7 +14,7 @@
     </div>
     <div class="field">
       <p class="control has-icons-left">
-        <input #pwInput class="input has-background-light" type="password" placeholder="Password">
+        <input #pwInput class="input has-background-light" type="password" placeholder="Contraseña">
         <span class="icon is-small is-left">
           <i class="fas fa-lock"></i>
         </span>
@@ -21,7 +22,8 @@
     </div>
     <div class="field" style="display: flex; justify-content: flex-end;">
       <p class="control">
-        <button class="button is-success has-text-white" (click)="onLoginButtonClicked(emailInput.value, pwInput.value)">
+        <button class="button is-success has-text-white"
+          (click)="onLoginButtonClicked(emailInput.value, pwInput.value)">
           Login
         </button>
       </p>
@@ -29,7 +31,7 @@
 
     <br>
 
-    <p class="has-text-grey">Not got an account? <a routerLink="/signup">Sign up</a> now!</p>
+    <p class="has-text-grey">No tienes cuenta? <a routerLink="/signup">Registrate</a> ahora!</p>
 
   </div>
 </div>

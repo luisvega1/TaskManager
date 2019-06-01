@@ -7,12 +7,15 @@ const ListSchema = new mongoose.Schema({
         minlength: 1,
         trim: true
     },
-    // with auth
+    // con auth
     _userId: {
         type: mongoose.Types.ObjectId,
         required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now()
     }
-
 })
 
 const List = mongoose.model('List', ListSchema);

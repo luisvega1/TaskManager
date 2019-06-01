@@ -29,6 +29,7 @@ $input-shadow: none;
 
 html {
     background: linear-gradient(to right top, $turquoise, $green);
+    background-repeat: no-repeat;
 }
 
 html, body {
@@ -67,4 +68,27 @@ html, body {
     width: 350px;
     max-width: 350px;
     
+}
+
+.list-menu-item{
+    flex-direction: column;
+    span{
+        font-size: 12px;
+        align-self: start;
+    }
+}
+
+.task-text{
+    flex-direction: column;
+    span{
+        font-size: 12px;
+        align-self: start;
+    }
+}
+
+.filter-sort{
+    display: flex;
+    .dropdown{
+        margin-left: 15px;
+    }
 }

@@ -1,5 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+import { Ng2SearchPipeModule } from 'ng2-search-filter';
+import { NotifierModule } from 'angular-notifier'
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -13,6 +17,8 @@ import { WebReqInterceptor } from './web-req.interceptor';
 import { SignupPageComponent } from './pages/signup-page/signup-page.component';
 import { EditListComponent } from './pages/edit-list/edit-list.component';
 import { EditTaskComponent } from './pages/edit-task/edit-task.component';
+import { ListFilterPipe } from './pages/task-view/list-filter.pipe';
+import { TaskFilterPipe } from './pages/task-view/task-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -23,12 +29,17 @@ import { EditTaskComponent } from './pages/edit-task/edit-task.component';
     LoginPageComponent,
     SignupPageComponent,
     EditListComponent,
-    EditTaskComponent
+    EditTaskComponent,
+    ListFilterPipe,
+    TaskFilterPipe
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
+    Ng2SearchPipeModule,
+    NotifierModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: WebReqInterceptor, multi: true }

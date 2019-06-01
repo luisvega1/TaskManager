@@ -3,4 +3,5 @@ export class Task {
     _listId: string;
     title: string;
     completed: boolean;
+    date: Date;
 }

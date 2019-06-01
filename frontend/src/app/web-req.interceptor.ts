@@ -17,18 +17,17 @@ export class WebReqInterceptor implements HttpInterceptor {
 
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<any> {
-    // Handle the request
+    // maneja el request
     request = this.addAuthHeader(request);
 
-    // call next() and handle the response
+    // llama next() y maneja el response
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         console.log(error);
 
         if (error.status === 401) {
-          // 401 error so we are unauthorized
-
-          // refresh the access token
+          // 401 error entonces no somos autorizados
+          // hace refresh el access token
           return this.refreshAccessToken()
             .pipe(
               switchMap(() => {
@@ -52,14 +51,14 @@ export class WebReqInterceptor implements HttpInterceptor {
     if (this.refreshingAccessToken) {
       return new Observable(observer => {
         this.accessTokenRefreshed.subscribe(() => {
-          // this code will run when the access token has been refreshed
+          // este código se ejecutará cuando el access token se haya actualizado
           observer.next();
           observer.complete();
         })
       })
     } else {
       this.refreshingAccessToken = true;
-      // we want to call a method in the auth service to send a request to refresh the access token
+      // queremos llamar a un método en el servicio de autenticación para enviar una solicitud para actualizar el token de acceso
       return this.authService.getNewAccessToken().pipe(
         tap(() => {
           console.log("Access Token Refreshed!");
@@ -68,16 +67,16 @@ export class WebReqInterceptor implements HttpInterceptor {
         })
       )
     }
-    
+
   }
 
 
   addAuthHeader(request: HttpRequest<any>) {
-    // get the access token
+    // obtener el access token
     const token = this.authService.getAccessToken();
 
     if (token) {
-      // append the access token to the request header
+      // agregar el access token al header
       return request.clone({
         setHeaders: {
           'x-access-token': token

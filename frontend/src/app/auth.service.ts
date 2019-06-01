@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { WebRequestService } from './web-request.service';
 import { Router } from '@angular/router';
-import { shareReplay, tap } from 'rxjs/operators';
+import { shareReplay, tap, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 
 @Injectable({
@@ -16,9 +17,12 @@ export class AuthService {
     return this.webService.login(email, password).pipe(
       shareReplay(),
       tap((res: HttpResponse<any>) => {
-        // the auth tokens will be in the header of this response
+        if (res === undefined) {
+          alert("Error al iniciar sesión, verifica que tu correo y contraseña sea valido.")
+        }
+        // Los auth tokens estaran en los headers en este response
         this.setSession(res.body._id, res.headers.get('x-access-token'), res.headers.get('x-refresh-token'));
-        console.log("LOGGED IN!");
+        console.log("LOGEADO!");
       })
     )
   }
@@ -28,19 +32,19 @@ export class AuthService {
     return this.webService.signup(email, password).pipe(
       shareReplay(),
       tap((res: HttpResponse<any>) => {
-        // the auth tokens will be in the header of this response
-        this.setSession(res.body._id, res.headers.get('x-access-token'), res.headers.get('x-refresh-token'));
-        console.log("Successfully signed up and now logged in!");
+        if (res === undefined) {
+          alert("Error al crear cuenta")
+          this.router.navigate(['/signup']);
+        } else {
+          // Los auth tokens estaran en los headers en este response
+          this.setSession(res.body._id, res.headers.get('x-access-token'), res.headers.get('x-refresh-token'));
+          console.log("Registro completo, puedes ingresar");
+        }
+
       })
-    )
-  }
-
-
-
-  logout() {
-    this.removeSession();
-
-    this.router.navigate(['/login']);
+    ).pipe(
+      catchError(this.handleError(`get_order_calendar`))
+    );
   }
 
   getAccessToken() {
@@ -58,7 +62,7 @@ export class AuthService {
   setAccessToken(accessToken: string) {
     localStorage.setItem('x-access-token', accessToken)
   }
-  
+
   private setSession(userId: string, accessToken: string, refreshToken: string) {
     localStorage.setItem('user-id', userId);
     localStorage.setItem('x-access-token', accessToken);
@@ -69,6 +73,18 @@ export class AuthService {
     localStorage.removeItem('user-id');
     localStorage.removeItem('x-access-token');
     localStorage.removeItem('x-refresh-token');
+  }
+
+  logout() {
+    this.removeSession()
+    return this.http.delete(`${this.webService.ROOT_URL}/users/session`, {
+      headers: {
+        'x-refresh-token': this.getRefreshToken(),
+        '_id': this.getUserId()
+      }
+    }).pipe(
+      catchError(this.handleError(`get_order_calendar`))
+    );
   }
 
   getNewAccessToken() {
@@ -84,4 +100,18 @@ export class AuthService {
       })
     )
   }
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      console.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
+  }
+
 }

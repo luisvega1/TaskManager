@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
 
-// JWT Secret
+// JWT Secreto
 const jwtSecret = "51778657246321226641fsdklafjasdkljfsklfjd7148924065";
 
 const UserSchema = new mongoose.Schema({
@@ -34,25 +34,25 @@ const UserSchema = new mongoose.Schema({
 });
 
 
-// *** Instance methods ***
+// *** Metodos de usuario instanciados ***
 
 UserSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
 
-    // return the document except the password and sessions (these shouldn't be made available)
+    // Regresa el documento excepto la sesion y la contraseña (eso no se debe mostrar)
     return _.omit(userObject, ['password', 'sessions']);
 }
 
 UserSchema.methods.generateAccessAuthToken = function () {
     const user = this;
     return new Promise((resolve, reject) => {
-        // Create the JSON Web Token and return that
+        // Crea el JSON Web Token y lo retorna
         jwt.sign({ _id: user._id.toHexString() }, jwtSecret, { expiresIn: "15m" }, (err, token) => {
             if (!err) {
                 resolve(token);
             } else {
-                // there is an error
+                // Si hay error
                 reject();
             }
         })
@@ -60,11 +60,11 @@ UserSchema.methods.generateAccessAuthToken = function () {
 }
 
 UserSchema.methods.generateRefreshAuthToken = function () {
-    // This method simply generates a 64byte hex string - it doesn't save it to the database. saveSessionToDatabase() does that.
+    // Genera una cadeta de 64 bytes en hexadecimal 
     return new Promise((resolve, reject) => {
         crypto.randomBytes(64, (err, buf) => {
             if (!err) {
-                // no error
+                // Si no hay error
                 let token = buf.toString('hex');
 
                 return resolve(token);
@@ -79,17 +79,16 @@ UserSchema.methods.createSession = function () {
     return user.generateRefreshAuthToken().then((refreshToken) => {
         return saveSessionToDatabase(user, refreshToken);
     }).then((refreshToken) => {
-        // saved to database successfully
-        // now return the refresh token
+        // Guardado correctamente en bd
+        // Regresa el refresh token
         return refreshToken;
     }).catch((e) => {
-        return Promise.reject('Failed to save session to database.\n' + e);
+        return Promise.reject('Error al guardar en db.\n' + e);
     })
 }
 
 
-
-/* MODEL METHODS (static methods) */
+/* MODEL METHODS (metodos estaticos) */
 
 UserSchema.statics.getJWTSecret = () => {
     return jwtSecret;
@@ -98,8 +97,8 @@ UserSchema.statics.getJWTSecret = () => {
 
 
 UserSchema.statics.findByIdAndToken = function (_id, token) {
-    // finds user by id and token
-    // used in auth middleware (verifySession)
+    // Encuentra usuario por id y token
+    // usado en auth middleware (verifySession)
 
     const User = this;
 
@@ -113,7 +112,9 @@ UserSchema.statics.findByIdAndToken = function (_id, token) {
 UserSchema.statics.findByCredentials = function (email, password) {
     let User = this;
     return User.findOne({ email }).then((user) => {
-        if (!user) return Promise.reject();
+        if (!user) {
+            return Promise.reject();
+        }
 
         return new Promise((resolve, reject) => {
             bcrypt.compare(password, user.password, (err, res) => {
@@ -122,6 +123,7 @@ UserSchema.statics.findByCredentials = function (email, password) {
                 }
                 else {
                     reject();
+                    console.log("contraseña incorrecta")
                 }
             })
         })
@@ -131,25 +133,23 @@ UserSchema.statics.findByCredentials = function (email, password) {
 UserSchema.statics.hasRefreshTokenExpired = (expiresAt) => {
     let secondsSinceEpoch = Date.now() / 1000;
     if (expiresAt > secondsSinceEpoch) {
-        // hasn't expired
+        // no a expirado
         return false;
     } else {
-        // has expired
+        // a expirado
         return true;
     }
 }
 
 
 /* MIDDLEWARE */
-// Before a user document is saved, this code runs
+// Antes de guardar el documento de usuario se corre esto
 UserSchema.pre('save', function (next) {
     let user = this;
     let costFactor = 10;
 
     if (user.isModified('password')) {
-        // if the password field has been edited/changed then run this code.
-
-        // Generate salt and hash password
+        // Crea salt de cotraseña y la hashea
         bcrypt.genSalt(costFactor, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hash) => {
                 user.password = hash;
@@ -164,14 +164,14 @@ UserSchema.pre('save', function (next) {
 
 /* HELPER METHODS */
 let saveSessionToDatabase = (user, refreshToken) => {
-    // Save session to database
+    // Guarda sesion en db
     return new Promise((resolve, reject) => {
         let expiresAt = generateRefreshTokenExpiryTime();
 
         user.sessions.push({ 'token': refreshToken, expiresAt });
 
         user.save().then(() => {
-            // saved session successfully
+            // guardado correctamente
             return resolve(refreshToken);
         }).catch((e) => {
             reject(e);

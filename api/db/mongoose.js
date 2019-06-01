@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/TaskManager', { useNewUrlParser: true }).then(() => {
-    console.log("Connected to MongoDB successfully :)");
+    console.log("Conectado a MongoDB correctamente");
 }).catch((e) => {
-    console.log("Error while attempting to connect to MongoDB");
+    console.log("Error al intentar contectarse a MongoDB");
     console.log(e);
 });
 
